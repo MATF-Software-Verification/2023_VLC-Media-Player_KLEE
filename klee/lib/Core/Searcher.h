@@ -71,7 +71,8 @@ namespace klee {
       NURS_RP,
       NURS_ICnt,
       NURS_CPICnt,
-      NURS_QC
+      NURS_QC,
+      Beam
     };
   };
 
@@ -319,7 +320,7 @@ namespace klee {
     std::vector<ExecutionState *> states;
       
   public:
-    BeamSearcher(size_t beamWidth);
+    explicit BeamSearcher(size_t beamWidth);
     ~BeamSearcher() override = default;
   
     ExecutionState &selectState() override;
