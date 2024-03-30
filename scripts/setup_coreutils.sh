@@ -1,6 +1,7 @@
 #!/bin/bash
 
-bootstrap_coreutils () {
+bootstrap_coreutils ()
+{
     rm -rf $1
     git clone git://git.sv.gnu.org/coreutils $1
     (
@@ -9,7 +10,8 @@ bootstrap_coreutils () {
     )
 }
 
-build_llvm() {
+build_llvm ()
+{
     llvm_dir="${1}/obj-llvm"
     rm -rf $llvm_dir
     mkdir $llvm_dir

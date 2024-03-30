@@ -573,3 +573,25 @@ void InterleavedSearcher::printName(llvm::raw_ostream &os) {
     searcher->printName(os);
   os << "</InterleavedSearcher>\n";
 }
+
+BeamSearcher::BeamSearcher(size_t beamWidth) : beamWidth{beamWidth} {}
+
+ExecutionState &BeamSearcher::selectState()
+{
+  return *states.front();
+}
+
+void BeamSearcher::update(ExecutionState *current,
+                          const std::vector<ExecutionState *> &addedStates,
+                          const std::vector<ExecutionState *> &removedStates) {
+}
+
+bool BeamSearcher::empty()
+{
+  return states.empty();
+}
+
+void BeamSearcher::printName(llvm::raw_ostream &os)
+{
+  os << "BeamSearcher\n";
+}

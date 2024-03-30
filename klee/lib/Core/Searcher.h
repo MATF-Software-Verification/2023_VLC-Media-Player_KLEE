@@ -314,6 +314,21 @@ namespace klee {
     void printName(llvm::raw_ostream &os) override;
   };
 
+  class BeamSearcher final : public Searcher {
+    size_t beamWidth;
+    std::vector<ExecutionState *> states;
+      
+  public:
+    BeamSearcher(size_t beamWidth);
+    ~BeamSearcher() override = default;
+  
+    ExecutionState &selectState() override;
+    void update(ExecutionState *current,
+                const std::vector<ExecutionState *> &addedStates,
+                const std::vector<ExecutionState *> &removedStates) override;
+    bool empty() override;
+    void printName(llvm::raw_ostream &os) override;
+  };
 } // klee namespace
 
 #endif /* KLEE_SEARCHER_H */
