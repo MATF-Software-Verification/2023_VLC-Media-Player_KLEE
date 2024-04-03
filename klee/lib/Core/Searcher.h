@@ -317,12 +317,14 @@ namespace klee {
 
   class BeamSearcher final : public Searcher {
     size_t beamWidth;
-    std::vector<ExecutionState *> states;
-      
+    std::vector<ExecutionState *> currentLayer;
+    std::vector<ExecutionState *> nextLayer;
+    std::vector<std::vector<ExecutionState *>> unvisitedStack;
+
   public:
     explicit BeamSearcher(size_t beamWidth);
     ~BeamSearcher() override = default;
-  
+
     ExecutionState &selectState() override;
     void update(ExecutionState *current,
                 const std::vector<ExecutionState *> &addedStates,

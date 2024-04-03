@@ -50,7 +50,7 @@ cl::list<Searcher::CoreSearchType> CoreSearch(
         clEnumValN(Searcher::NURS_QC, "nurs:qc", "use NURS with Query-Cost"),
         clEnumValN(Searcher::Beam, "beam",
                    "use Beam Search, where at every search level only "
-                   "a specified number of most promising states are kept")),
+                   "a specified number of most promising states are expanded upon")),
     cl::cat(SearchCat));
 
 cl::opt<bool> UseIterativeDeepeningTimeSearch(

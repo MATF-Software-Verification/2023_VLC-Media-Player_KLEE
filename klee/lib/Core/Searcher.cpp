@@ -578,17 +578,68 @@ BeamSearcher::BeamSearcher(size_t beamWidth) : beamWidth{beamWidth} {}
 
 ExecutionState &BeamSearcher::selectState()
 {
-  return *states.front();
+  return *currentLayer.front();
 }
 
 void BeamSearcher::update(ExecutionState *current,
                           const std::vector<ExecutionState *> &addedStates,
                           const std::vector<ExecutionState *> &removedStates) {
+
+  if (!addedStates.empty() && current && std::find(removedStates.begin(), removedStates.end(), current) == removedStates.end()) {
+    currentLayer.erase(std::find(currentLayer.begin(), currentLayer.end(), current));
+    nextLayer.push_back(current);
+  }
+
+  nextLayer.insert(nextLayer.end(), addedStates.begin(), addedStates.end());
+
+  for (const auto state : removedStates) {
+    auto it = std::find(currentLayer.begin(), currentLayer.end(), state);
+    if (it != currentLayer.end()) {
+      currentLayer.erase(it);
+      continue;
+    }
+
+    it = std::find(nextLayer.begin(), nextLayer.end(), state);
+    if (it != nextLayer.end()) {
+      nextLayer.erase(it);
+      continue;
+    }
+
+    for (auto &layer : unvisitedStack) {
+      it = std::find(layer.begin(), layer.end(), state);
+      if (it != layer.end()) {
+        layer.erase(it);
+        break;
+      }
+    }
+  }
+
+  if (currentLayer.empty() && !nextLayer.empty()) {
+    // TODO: Extract metric computation to a separate method 
+    std::sort(nextLayer.begin(), nextLayer.end(), [](auto *l, auto *r) {
+      auto ld = computeMinDistToUncovered(l->pc, l->stack.back().minDistToUncoveredOnReturn);
+      auto rd = computeMinDistToUncovered(r->pc, r->stack.back().minDistToUncoveredOnReturn);
+      return ld < rd;
+    });
+
+    auto toExchange = std::min(nextLayer.size(), beamWidth);
+
+    currentLayer.insert(currentLayer.end(), nextLayer.begin(), nextLayer.begin() + toExchange);
+    nextLayer.erase(nextLayer.begin(), nextLayer.begin() + toExchange);
+
+    if (!nextLayer.empty()) {
+      unvisitedStack.push_back(nextLayer);
+      nextLayer.clear();
+    }
+  } else if (currentLayer.empty() && nextLayer.empty() && !unvisitedStack.empty()) {
+    currentLayer = std::move(unvisitedStack.back());
+    unvisitedStack.pop_back();
+  }
 }
 
 bool BeamSearcher::empty()
 {
-  return states.empty();
+  return currentLayer.empty() && nextLayer.empty() && unvisitedStack.empty();
 }
 
 void BeamSearcher::printName(llvm::raw_ostream &os)
